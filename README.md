@@ -1,1 +1,1 @@
-# FilecoinPricingMechanism
+# Filecoin Pricing Mechanism (FPM)
