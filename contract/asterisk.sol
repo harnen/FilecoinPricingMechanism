@@ -19,25 +19,10 @@ contract asterisk {
     uint public highestScore = 0;
     uint depositLimit = 100;
     uint deposit = 0;
+    uint itemCounter = 0;
 
     constructor() public {                  
-        items[0] = itemDescription({size: 9, duration: 2, price: 80});
-        //items[1] = itemDescription({size: 11, duration: 2, price: 100});
-        //items[2] = itemDescription({size: 13, duration: 2, price: 120});
-        
-        bids[0] = itemDescription({size: 8, duration: 2, price: 90});
-        //bids[1] = itemDescription({size: 10, duration: 2, price: 150});
-        //bids[2] = itemDescription({size: 12, duration: 2, price: 200});
-        
-        X.push(0);
-        //X.push(1);
-        //X.push(2);
-        
-        prices.push(85);//correct price
-        //prices.push(90);//in correct price (lower than the reservation price)
-        //prices.push(15);//in correct price (higher than the reservation price)
-        
-        score = 140;
+
     }  
 
     
@@ -49,6 +34,12 @@ contract asterisk {
             deposit = msg.value;
             highestScore=score_;
         }
+    }
+    
+    function addItem(uint size, uint duration, uint price) public returns(uint){
+        itemCounter++;
+        items[itemCounter] = itemDescription({size: size, duration: duration, price: price});
+        return itemCounter;
     }
 
     
