@@ -26,7 +26,7 @@ cd ./scripts
 
 Run a geth node:
 ``` 
-cs ./scripts
+cd ./scripts
 ./run_blockchain
 ```
 
