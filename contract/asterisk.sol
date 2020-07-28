@@ -1,4 +1,4 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.7.0;
 
 contract asterisk {
 
@@ -31,6 +31,14 @@ contract asterisk {
         bidsCounter++;
         bids[bidsCounter] = itemDescription({size: size, duration: duration, price: price});
         return bidsCounter;
+    }
+
+    function getBid(uint count) public view returns (uint[] memory){
+        uint[] memory ret = new uint[](3);
+        ret[0] = bids[count].size;
+        ret[1] = bids[count].duration;
+        ret[2] = bids[count].price;
+        return ret;
     }
 
 
