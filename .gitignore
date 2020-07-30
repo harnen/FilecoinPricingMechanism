@@ -1,2 +1,3 @@
 data/geth
 data/history
+*/__pycache__

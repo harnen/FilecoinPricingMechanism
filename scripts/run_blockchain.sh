@@ -1,1 +1,1 @@
-geth --datadir ../data/ --keystore ../data/keystore/ console
+geth --datadir ../data/ --keystore ../data/keystore/ --http console 

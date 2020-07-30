@@ -33,13 +33,15 @@ if __name__ == '__main__':
     # used for client initialization
     parser.add_argument('--account', help='Self account', required=True)
     parser.add_argument(
-        '--provider', default='http://localhost:30303', help='ethereum HTTP provider URL')
+        '--provider', default='http://127.0.0.1:8545', help='ethereum HTTP provider URL')
     parser.add_argument(
         '--abi', default='../contract/asterisk.abi', help='price bid parameter')
     args = parser.parse_args()
 
     client = Client(args.account, args.provider, args.addr, args.abi)
+    tx_receipt = None
     if client.check_connection() is True:
-        client.submit_bid(args.size, args.duration, args.price, args.gas)
+        tx_receipt = client.submit_bid(args.size, args.duration, args.price, args.gas)
+        print(tx_receipt)
     else:
         print('Error: The client is not connected to the Ethereum network.')
