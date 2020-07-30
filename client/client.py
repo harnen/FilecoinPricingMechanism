@@ -21,13 +21,25 @@ class Client:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Simple Client.')
-    parser.add_argument('--size', help='size bid parameter')
-    parser.add_argument('--duration', help='duration bid parameter')
-    parser.add_argument('--bid', help='price bid parameter')
+    # Used for bid submittion
+    parser.add_argument('--addr', default='', help='Contract address')
+    parser.add_argument(
+        '--size', help='Storage size of your bid', required=True)
+    parser.add_argument(
+        '--duration', help='Duration of your bid', required=True)
+    parser.add_argument('--price', help='Price of your bid', required=True)
+    parser.add_argument(
+        '--gas', help='Gas for your transaction', required=True)
+    # used for client initialization
+    parser.add_argument('--account', help='Self account', required=True)
+    parser.add_argument(
+        '--provider', default='http://localhost:30303', help='ethereum HTTP provider URL')
+    parser.add_argument(
+        '--abi', default='../contract/asterisk.abi', help='price bid parameter')
     args = parser.parse_args()
 
-    ok = args.size is not None
-    ok &= args.duration is not None
-    ok &= args.bid is not None
-    if not ok:
-        parser.error('All parameters must be specified.')
+    client = Client(args.account, args.provider, args.addr, args.abi)
+    if client.check_connection() is True:
+        client.submit_bid(args.size, args.duration, args.price, args.gas)
+    else:
+        print('Error: The client is not connected to the Ethereum network.')
