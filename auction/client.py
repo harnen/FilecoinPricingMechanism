@@ -1,5 +1,6 @@
 from web3 import Web3
 import argparse
+from multi_dutch import Auction
 
 
 class Client:
@@ -20,11 +21,8 @@ class Client:
             print(account, self.w3.eth.getBalance(account))
 
 
-    def bid(self):
-        size = input("How much storage do you need?[GB]:")
-        duration = input("What's the length of the lease?[days]:")
-        price = input("How much are you willing to pay?[ETH]:")
-        print("Submitting bid for", size, "GB of storage for", duration, "days")
+    def bid(self, size, duration, pice):   
+        print("Submitting bid for", size, "GB of storage for", duration, "days")     
         transaction = self.contract.functions.submitBid(int(size), int(duration), int(price))
         tx_hash = transaction.transact()
         return self.w3.eth.waitForTransactionReceipt(tx_hash)
@@ -61,13 +59,42 @@ class Client:
         bids = []
         for i in range(1, bidsCounter + 1):
             bids.append(self.contract.functions.bids(i).call())
-        print("Bids:", bids)
+        print("Fetched bids:", bids)
 
         itemsCounter = self.contract.functions.itemCounter().call()
         items = []
         for i in range(1, itemsCounter + 1):
             items.append(self.contract.functions.items(i).call())
-        print("Items:", items)
+        print("Fetched items:", items)
+
+        bidderIDs = range(0, bidsCounter)
+        itemIDs = range(0, itemsCounter)
+
+        #valuation bidde -> item
+        valuations = {}
+        for bidder in bidderIDs:
+            for item in itemIDs:
+                ok = True
+                for i in range(0, len(bids[bidder])):
+                    if(bids[bidder][i] < items[item][i]):
+                        valuations[bidder, item] = 0
+                        ok = False
+                        break
+                if(ok):
+                    valuations[bidder, item] = bids[bidder][2]
+        min_prices = [v[2] for k,v in enumerate(items)]
+        print("ItemIDs", itemIDs)
+        print("BidderIDs", bidderIDs)
+        print("Valuations", valuations)
+        print("Min prices", min_prices)
+        
+
+        auction = Auction(itemIDs, min_prices, bidderIDs, valuations)
+        auction.solve()
+        auction.print_assignments()
+        auction.verify()
+                
+                
 
 
 
@@ -83,12 +110,33 @@ if __name__ == '__main__':
         '--abi', default='../contract/asterisk.abi', help='Contract ABI file')
     parser.add_argument(
         '--bin', default='../contract/asterisk.bin', help='Contract BIN file')
+    parser.add_argument(
+        '--size', help='Storage size')
+    parser.add_argument(
+        '--duration', help='Storage duration')
+    parser.add_argument(
+        '--price', help='Price')
     args = parser.parse_args()
+    print("args", args)
+
 
     client = Client(args.account, args.provider, args.addr, args.abi)
 
+    
     if(args.command == 'bid'):
-        result = client.bid()
+        if(args.size == None):
+            size = input("How much storage do you need?[GB]:")
+        else:
+            size = args.size
+        if(args.duration == None):
+            duration = input("What's the length of the lease?[days]:")
+        else:
+            duration = args.duration
+        if(args.price == None):
+            price = input("How much are you willing to pay?[ETH]:")
+        else:
+            price = args.price
+        result = client.bid(size, duration, price)
         print("Your bid was submitted.")
     elif(args.command == 'item'):
         result = client.item()
