@@ -20,17 +20,21 @@ class Client:
             print(account, self.w3.eth.getBalance(account))
 
 
-    def submit_bid(self, size, duration, price, gas):
-        transaction = self.contract.functions.submitBid(size, duration, price)
-        tx_hash = transaction.transact({'from': self.account, 'gas': gas})
-        return self.w3.eth.waitForTransactionReceipt(tx_hash)
-
     def bid(self):
         size = input("How much storage do you need?[GB]:")
         duration = input("What's the length of the lease?[days]:")
         price = input("How much are you willing to pay?[ETH]:")
         print("Submitting bid for", size, "GB of storage for", duration, "days")
         transaction = self.contract.functions.submitBid(int(size), int(duration), int(price))
+        tx_hash = transaction.transact()
+        return self.w3.eth.waitForTransactionReceipt(tx_hash)
+
+    def item(self):
+        size = input("How much storage do you offer?[GB]:")
+        duration = input("What's the length of the offered lease?[days]:")
+        price = input("What's the minimum price for this storage?[ETH]:")
+        print("Submitting item with", size, "GB of storage for", duration, "days", "and", price, "minimum price")
+        transaction = self.contract.functions.addItem(int(size), int(duration), int(price))
         tx_hash = transaction.transact()
         return self.w3.eth.waitForTransactionReceipt(tx_hash)
 
@@ -54,9 +58,16 @@ class Client:
 
     def solve(self):
         bidsCounter = self.contract.functions.bidsCounter().call()
-        print("Bids(", bidsCounter, ")" )
+        bids = []
         for i in range(1, bidsCounter + 1):
-            print("Bid:", self.contract.functions.bids(i).call())
+            bids.append(self.contract.functions.bids(i).call())
+        print("Bids:", bids)
+
+        itemsCounter = self.contract.functions.itemCounter().call()
+        items = []
+        for i in range(1, itemsCounter + 1):
+            items.append(self.contract.functions.items(i).call())
+        print("Items:", items)
 
 
 
@@ -64,7 +75,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='FilecoinPricingMechanism Client.')
     # Used for bid submittion
     parser.add_argument('--addr', default='', help='Contract address')
-    parser.add_argument("command", choices=['list', 'deploy', 'bid', 'verify', 'solve'], help="Command to execute")
+    parser.add_argument("command", choices=['item', 'list', 'deploy', 'bid', 'verify', 'solve'], help="Command to execute")
     parser.add_argument('--account', help='Self account', required=False)
     parser.add_argument(
         '--provider', default='../data/geth.ipc', help='ethereum IPC provider URL')
@@ -79,6 +90,9 @@ if __name__ == '__main__':
     if(args.command == 'bid'):
         result = client.bid()
         print("Your bid was submitted.")
+    elif(args.command == 'item'):
+        result = client.item()
+        print("Your item was submitted.")
     elif(args.command == 'deploy'):
         client.deployContract(args.abi, args.bin)
     elif(args.command == 'list'):
