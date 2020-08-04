@@ -1,4 +1,5 @@
-pragma solidity ^0.7.0;
+//pragma solidity ^0.7.0;
+pragma solidity ^0.5.16;
 
 contract asterisk {
 
@@ -19,8 +20,8 @@ contract asterisk {
     uint public highestScore = 0;
     uint depositLimit = 100;
     uint deposit = 0;
-    uint itemCounter = 0;
-    uint bidsCounter = 0;
+    uint public itemCounter = 0;
+    uint public bidsCounter = 0;
 
     constructor() public {
 
