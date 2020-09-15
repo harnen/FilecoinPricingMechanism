@@ -1,20 +1,6 @@
-# Filecoin Pricing Mechanism (FPM)
+# Filecoin Pricing Mechanism (PASTRAMI)
 
-
-We can build and test the project using [scaffold-eth](https://github.com/austintgriffith/scaffold-eth). It's a framework for quickly deploying and running smart contracts and is explained  [here](https://www.youtube.com/watch?v=eUAc2FtC0_s).
-
-For the fronted, [fleek](https://fleek.co/) seems like a good solution. We can create a simple website interface and deploy it on IPFS.
-
-
-# Prerequisites
-
-To compile the smart contract you'll need solc: `sudo snap install solc`
-
-The scripts require Python > 3.6 and following packages: `sudo pip3 install web3 numpy pandas`
-
-You need geth to run your local blockchain instance
-
-# Running
+This repository contains implementation for Filecoin Pricing Mechanism aka PASTRAMI. The mechanism was described in details in [this paper](https://arxiv.org/pdf/2004.06403.pdf). For a quick overview you can watch this [highlight video](https://www.youtube.com/watch?v=hM1afoJ4KCI).
 
 ## Blockchain
 
