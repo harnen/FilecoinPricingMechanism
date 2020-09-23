@@ -63,3 +63,6 @@ To verify an auction:
 `./client verify --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b --addr <contract_address>`
 
 
+## Recreating paper results
+
+
