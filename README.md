@@ -15,17 +15,17 @@ Furthermore, FPM uses numpy, pandas and [web3py](https://github.com/ethereum/web
 
 ## Blockchain
 
-Init a new blockchain with preseeded accounts:
+To simplify tests, the software version in this repository creates a new private Ethereum blockchain with preseeded accounts. To create a new blockchain execute
 ```
 cd ./scripts
 ./initialize_blockchain.sh
 ```
 
-Run a geth node:
+To run a geth node with the default configutation run:
 ``` 
 cd ./scripts
 ./run_blockchain
 ```
 
-To submit transactions you need to start mining and type the following in the geth console:
+To submit transactions you need to start mining and type the following in the geth console open by the previous command:
 `miner.start()`
