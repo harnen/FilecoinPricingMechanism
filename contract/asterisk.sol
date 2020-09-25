@@ -42,6 +42,10 @@ contract asterisk {
         return ret;
     }
 
+    function setScore(int score_) public {
+        score = score_;
+    }
+
 
     function submitSolution(uint[] memory X_, uint[] memory prices_, uint score_) public payable {
         if((score_ > highestScore && msg.value >= depositLimit)){

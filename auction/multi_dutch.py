@@ -19,13 +19,14 @@ import pandas as pd
 #delta_price  = 1#delta price: has to be selected in a way that captures the bidders' valuation differences
 
 class Auction:
-	def __init__(self, items, reser_prices, bidders, valuations):
+	def __init__(self, items, reser_prices, bidders, valuations, max_price=101):
+		#print("init with", items, reser_prices, bidders, valuations)
 		self.Items = items
 		self.reser_prices= reser_prices
 		self.prices = {}
 		self.itemsToBidders = {}
 		for item in self.Items:
- 			self.prices[item] = 101#price above any possible valuation
+ 			self.prices[item] = max_price#price above any possible valuation
  			self.itemsToBidders[item]= None
 
 		self.Bidders = bidders
@@ -146,6 +147,9 @@ class Auction:
 			else:
 				print("Bidder ", bidderID, "acquired the null item")
 
+	def return_solution(self):
+		return list(self.biddersToItems.values()), list(self.prices.values()), 1
+
 	def verify(self):
 		net_sum = 0
 		price_sum = 0
@@ -172,7 +176,32 @@ class Auction:
 		return (net_sum/len(self.Bidders), price_sum/assigned_items)
 
 
-def main():
+def returnDummyAuction(number_of_bidders=15,number_of_items=30, seedInput=1234):
+	"""
+	initialises the set of bidders and items
+	bidders' valuations for items take values between 1 and 100
+	items' reservation prices take values from 1 to 50
+	"""
+	seed(seedInput)
+
+	Items = []
+	reser_prices = {}
+	Bidders = []
+	valuations = {}
+	for item in range(1,number_of_items+1):
+		itemID  = "I"+str(item)
+		Items.append(itemID)
+		reser_prices[itemID]  = float(randint(1,50))
+	
+	for bidder in range(1,number_of_bidders+1):
+		bidderID  = "B"+str(bidder)
+		Bidders.append(bidderID)
+		for itemID in Items:
+			valuations[bidderID,itemID] = float(randint(1,100))
+	
+	return Auction(Items, reser_prices, Bidders, valuations)
+
+def simpleAuction():
 	item1ID = "item1"
 	item2ID = "item2"
 	item3ID = "item3"
@@ -187,14 +216,10 @@ def main():
 	reser_prices[item3ID]  = 1
 	bidder1ID = "b1"
 	bidder2ID = "b2"
-	bidder3ID = "b3"
-	bidder4ID = "b4"
 	bidder5ID = "b5"
 	Bidders = []
 	Bidders.append(bidder1ID)
 	Bidders.append(bidder2ID)
-	Bidders.append(bidder3ID)
-	Bidders.append(bidder4ID)
 	Bidders.append(bidder5ID)
 
 
@@ -207,22 +232,54 @@ def main():
 	valuations['b2','item2'] = 20
 	valuations['b2','item3'] = 20
 
-	valuations['b3','item1'] = 0
-	valuations['b3','item2'] = 15
-	valuations['b3','item3'] = 15
-
-	valuations['b4','item1'] = 5
-	valuations['b4','item2'] = 10
-	valuations['b4','item3'] = 30
-
-	valuations['b5','item1'] = 10
-	valuations['b5','item2'] = 13
+	valuations['b5','item1'] = 15
+	valuations['b5','item2'] = 15
 	valuations['b5','item3'] = 15
 
 	auction = Auction(Items, reser_prices, Bidders, valuations)
 	auction.solve()
 	auction.print_assignments()
 	auction.verify()
+
+def measurements():
+
+	results = {}
+	results['n'] = list()
+	results['auction'] = list()
+	results['verification'] = list()
+	results['total'] = list()
+	results['run'] = list()
+	results['gas_per_user'] = list()
+
+
+	for run in range (1, 5, 1): 
+		for n in range (1, 10002, 500):
+			print(n)
+			auction = returnDummyAuction(number_of_bidders = n, number_of_items = 100)
+			#simpleAuction()
+
+			start = time.time()
+			auction.solve()
+			end = time.time()
+
+			#print_assignments()
+
+			vstart = time.time()
+			auction.verify()
+			vend = time.time()
+
+			print("Time", end - start)
+			results['n'].append(n)
+			results['auction'].append(end - start)
+			results['verification'].append(vend - vstart)
+			results['total'].append((vend - vstart) + (end - start))
+			results['run'].append(run)
+			results['gas_per_user'].append(492048 + n*508)
+
+
+
+def main():
+	measurements()
 
 if __name__=="__main__":
 	main()
@@ -328,25 +385,3 @@ if __name__=="__main__":
 
 
 
-# def returnDummyAuction(number_of_bidders=15,number_of_items=30):
-# 	"""
-# 	initialises the set of bidders and items
-# 	bidders' valuations for items take values between 1 and 100
-# 	items' reservation prices take values from 1 to 50
-# 	"""
-# 	seed(seedInput)
-# 	#create items' ID
-# 	for item in range(1,number_of_items+1):
-# 		itemID  = "I"+str(item)
-# 		Items.append(itemID)
-# 		prices[itemID]        = 101.0#price above any possible valuation
-# 		reser_prices[itemID]  = float(randint(1,50))
-# 		itemsToBidders[itemID]= None
-# 	#create bidders' ID
-# 	for bidder in range(1,number_of_bidders+1):
-# 		bidderID  = "B"+str(bidder)
-# 		Bidders.append(bidderID)
-# 		demand_correspondence[bidderID]  = []#the demand correspondence is empty
-# 		biddersToItems[bidderID]  = None
-# 		for itemID in Items:
-# 			valuations[bidderID,itemID] = float(randint(1,100))
