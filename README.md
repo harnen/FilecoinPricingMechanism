@@ -66,3 +66,13 @@ To verify an auction:
 ## Recreating paper results
 
 
+To recreate Filecoin results (Fig. 7, 8) run:
+
+```
+cd auction
+./read_filecoin.py
+````
+The script reads storage node prices from `./data/filecoin_miners.json` and benchmarks the auction mechanism with different number of of bidders. Note that the prices declared might have changed in the meantime. You can thus update the JSON file and the script will perform the same calculations over new data. 
+
+
+
