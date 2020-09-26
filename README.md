@@ -64,7 +64,7 @@ To verify an auction:
 
 
 ## Recreating paper results
-This section provides information on how to run FPM. The comparison in the paper was made against VSA available (here)[https://github.com/HSG88/AuctionContract]. 
+This section provides information on how to run FPM. The comparison in the paper was made against VSA available [here](https://github.com/HSG88/AuctionContract). 
 
 To benchmark auction solving and verification prosess run:
 
