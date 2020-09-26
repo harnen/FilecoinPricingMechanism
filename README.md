@@ -64,7 +64,17 @@ To verify an auction:
 
 
 ## Recreating paper results
+This section provides information on how to run FPM. The comparison in the paper was made against VSA available (here)[https://github.com/HSG88/AuctionContract]. 
 
+To benchmark auction solving and verification prosess run:
+
+```
+cd auction
+./multi_dutch.py
+```
+The main function creates random auction of increasing size, measures the time required to perform each procedure and create a Python dictionary with aggregated results. 
+
+For the Ethereum gas measurements, you can use CLI (deploy, item, bid) and observe the gas usage returned by Geth. 
 
 To recreate Filecoin results (Fig. 7, 8) run:
 
