@@ -11,7 +11,7 @@ On ubuntu run:
 
 Furthermore, FPM uses numpy, pandas and [web3py](https://github.com/ethereum/web3.py) Python libraries that can be installed using pip:
 
-`pip3 install web3py numpy pandas`
+`pip3 install web3 numpy pandas`
 
 ## Blockchain
 
@@ -24,7 +24,7 @@ cd ./scripts
 To run a geth node with the default configutation run:
 ``` 
 cd ./scripts
-./run_blockchain
+./run_blockchain.sh
 ```
 
 To submit transactions you need to start mining and type the following in the geth console open by the previous command:
@@ -37,19 +37,19 @@ The client is located in the auction folder:
 `cd auction`
 
 You can list current accounts using:
-`./client list`
+`./client.py list`
 
 You need to use one of those accounts to interact with the blockchains. The accounts have pre-allocated funds that can be spent. 
 
 To deploy the FPM contract use:
-`./client deploy --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b`
+`./client.py deploy --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b`
 The command will return the address of the contract. You'll have to use it in the next steps.
 
 To submit items:
-`./client item --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b --addr <contract_address>`
+`./client.py item --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b --addr <contract_address>`
 
 To bid for items:
-`./client bid --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b --addr <contract_address>`
+`./client.py bid --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b --addr <contract_address>`
 
 NOTE: in the `scripts` folder, you'll find a `populate.sh` script automatically adding mutiple bids and items to the contract without user interaction.
 
@@ -57,10 +57,10 @@ To solve an auction:
 `./client solve --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b --addr <contract_address>`
 
 The client allows to submit an incorrect solution using:
-`./client solve-fake --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b --addr <contract_address>`
+`./client.py solve-fake --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b --addr <contract_address>`
 
 To verify an auction:
-`./client verify --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b --addr <contract_address>`
+`./client.py verify --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b --addr <contract_address>`
 
 
 ## Recreating paper results
@@ -82,7 +82,7 @@ To recreate Filecoin results (Fig. 7, 8) run:
 cd auction
 ./read_filecoin.py
 ````
-The script reads storage node prices from `./data/filecoin_miners.json` and benchmarks the auction mechanism with different number of of bidders. Note that the prices declared might have changed in the meantime. You can thus update the JSON file and the script will perform the same calculations over new data. 
+The script reads storage node prices from `./data/filecoin_miners.json` and benchmarks the auction mechanism with different number of bidders. Note that the prices declared might have changed in the meantime. You can thus update the JSON file and the script will perform the same calculations over new data. 
 
 
 
