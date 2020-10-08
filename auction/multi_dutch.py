@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from random import randint,seed
 import numpy as np
 import Hungarian
