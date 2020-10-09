@@ -152,10 +152,21 @@ class Auction:
 	def return_solution(self):
 		return list(self.biddersToItems.values()), list(self.prices.values()), 1
 
+	def set_solution(self, X, prices):
+		self.biddersToItems = {}
+		for i in range(0, len(X)):
+			self.biddersToItems[i] = X[i]
+
+		self.prices = {}
+		for i in range(0, len(prices)):
+			self.prices[i] = prices[i]
+
 	def verify(self):
 		net_sum = 0
 		price_sum = 0
 		assigned_items = 0
+		if(len(self.biddersToItems) <= 1 or len(self.prices) <= 1 ):
+			return False
 		for bidderID in self.Bidders:
 			my_itemID  = self.biddersToItems[bidderID]
 			net_valuation = 0
@@ -171,7 +182,7 @@ class Auction:
 				#had to add delta price to cover for computation inaccuracy with floats
 				if( (net_valuation + self.delta_price) < other_valuation):
 					print("Users", bidderID, "would be better with item", itemID, "with net evaluation", other_valuation)
-					return
+					return False
 
 		print("Assignment verified correctly")
 

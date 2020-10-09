@@ -54,48 +54,16 @@ class Client:
         return tx_receipt.contractAddress
 
     def solve_fake(self):
-        bidsCounter = self.contract.functions.bidsCounter().call()
-        bids = []
-        for i in range(1, bidsCounter + 1):
-            bids.append(self.contract.functions.bids(i).call())
-        print("Fetched bids:", bids)
-
-        itemsCounter = self.contract.functions.itemCounter().call()
-        items = []
-        for i in range(1, itemsCounter + 1):
-            items.append(self.contract.functions.items(i).call())
-        print("Fetched items:", items)
-
-        bidderIDs = list(range(0, bidsCounter))
-        itemIDs = list(range(0, itemsCounter))
-
-        #valuation bidde -> item
-        valuations = {}
-        for bidder in bidderIDs:
-            for item in itemIDs:
-                ok = True
-                #print("bidder", bidder, "item", item)
-                for i in range(0, len(bids[bidder]) - 1):
-                    #print("comparing features", bids[bidder][i], items[item][i])
-                    if(bids[bidder][i] > items[item][i]):
-                        valuations[bidder, item] = 0
-                        ok = False
-                        break
-                if(ok):
-                    valuations[bidder, item] = bids[bidder][2]
-        list_min_prices = [v[2] for k,v in enumerate(items)]
-        min_prices = {}
-        for item in itemIDs:
-            min_prices[item] = list_min_prices[item]
-        
-
-        auction = Auction(itemIDs, min_prices, bidderIDs, valuations)
+        X = [0]
+        prices = [0]
+        score = 100000
         print("Computing a fake auction solution")
-        transaction = self.contract.functions.setScore(0)
+        transaction = self.contract.functions.submitSolution(X, prices, score)
         tx_hash = transaction.transact()
         self.w3.eth.waitForTransactionReceipt(tx_hash)
         print("Solution submitted")
 
+        
     def solve(self):
         bidsCounter = self.contract.functions.bidsCounter().call()
         bids = []
@@ -130,11 +98,7 @@ class Client:
         min_prices = {}
         for item in itemIDs:
             min_prices[item] = list_min_prices[item]
-        #print("ItemIDs", itemIDs)
-        #print("BidderIDs", bidderIDs)
-        #print("Valuations", valuations)
-        #print("Min prices", min_prices)
-        
+       
 
         auction = Auction(itemIDs, min_prices, bidderIDs, valuations)
         print("Solving auction")
@@ -142,26 +106,65 @@ class Client:
         auction.solve()
         X, prices, score = auction.return_solution()
 
-        transaction = self.contract.functions.setScore(1)
+        print("X", X)
+        print("prices", prices)
+
+        transaction = self.contract.functions.submitSolution(X, prices, score)
         tx_hash = transaction.transact()
         self.w3.eth.waitForTransactionReceipt(tx_hash)
-        
-        #submitSolution(uint[] memory X_, uint[] memory prices_, uint score_) 
-        #transaction = self.contract.functions.submitSolution(X, prices, score) 
-        #tx_hash = transaction.transact()
-        #return self.w3.eth.waitForTransactionReceipt(tx_hash)
-        #auction.print_assignments()
-        #auction.verify()
-        time.sleep(1)
+
         print("Solution submitted")
 
 
     def verify(self):
-        print("Fetching solution")
-        score = self.contract.functions.score().call()
-        print("Verifying solution")
-        if score == 0 :
-            print("Users 1 would be better with item 1 with net evaluation 4")
+        X = []
+        prices = []
+        pricesSize = self.contract.functions.pricesCounter().call()
+        XSize = self.contract.functions.XCounter().call()
+        for i in range(0, XSize):
+            X.append(self.contract.functions.X(i).call())
+        for i in range(0, pricesSize):
+            prices.append(self.contract.functions.prices(i).call())
+ 
+        bidsCounter = self.contract.functions.bidsCounter().call()
+        bids = []
+        for i in range(1, bidsCounter + 1):
+            bids.append(self.contract.functions.bids(i).call())
+        print("Fetched bids:", bids)
+
+        itemsCounter = self.contract.functions.itemCounter().call()
+        items = []
+        for i in range(1, itemsCounter + 1):
+            items.append(self.contract.functions.items(i).call())
+        print("Fetched items:", items)
+
+        bidderIDs = list(range(0, bidsCounter))
+        itemIDs = list(range(0, itemsCounter))
+
+        #valuation bidde -> item
+        valuations = {}
+        for bidder in bidderIDs:
+            for item in itemIDs:
+                ok = True
+                #print("bidder", bidder, "item", item)
+                for i in range(0, len(bids[bidder]) - 1):
+                    #print("comparing features", bids[bidder][i], items[item][i])
+                    if(bids[bidder][i] > items[item][i]):
+                        valuations[bidder, item] = 0
+                        ok = False
+                        break
+                if(ok):
+                    valuations[bidder, item] = bids[bidder][2]
+        list_min_prices = [v[2] for k,v in enumerate(items)]
+        min_prices = {}
+        for item in itemIDs:
+            min_prices[item] = list_min_prices[item]
+       
+
+        auction = Auction(itemIDs, min_prices, bidderIDs, valuations)
+        auction.set_solution(X, prices)
+        if(auction.verify() == False):
+            print("Solution is incorrect")
             answer = input("Would you like to submit a proof of misbehaviour?[y/n]:")
             if(answer == 'y'):
                 time.sleep(1)
@@ -169,7 +172,7 @@ class Client:
                 print("The incorrect solution will be removed and its creator penalized")
         else:
             print("Assignment verified correctly")
-        
+
 
                 
                 

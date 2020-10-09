@@ -14,11 +14,13 @@ contract asterisk {
     mapping(uint => itemDescription) public items;
 
     uint[] public X;
+    uint public XCounter;
     //indexed by bidID
     uint[] public prices;
+    uint public pricesCounter;
     int public score;
     uint public highestScore = 0;
-    uint depositLimit = 100;
+    uint depositLimit = 0;
     uint deposit = 0;
     uint public itemCounter = 0;
     uint public bidsCounter = 0;
@@ -42,19 +44,41 @@ contract asterisk {
         return ret;
     }
 
+    function getX(uint i) public view returns(uint) {
+        return X[i];
+    }
+
+    function getPrices(uint i) public view returns(uint) {
+        return prices[i];
+    }
+
     function setScore(int score_) public {
         score = score_;
     }
 
-
+    
     function submitSolution(uint[] memory X_, uint[] memory prices_, uint score_) public payable {
         if((score_ > highestScore && msg.value >= depositLimit)){
             X = X_;
+            XCounter = X.length;
             prices = prices_;
+            pricesCounter = prices.length;
             score = int(score_);
             deposit = msg.value;
             highestScore=score_;
         }
+    }
+
+    function addX(uint val) public returns(uint){
+        X[XCounter] = val;
+        XCounter++;
+        return XCounter;
+    }
+
+    function addprice(uint val) public returns(uint){
+        X[pricesCounter] = val;
+        pricesCounter++;
+        return pricesCounter;
     }
 
     function addItem(uint size, uint duration, uint price) public returns(uint){
