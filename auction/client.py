@@ -121,6 +121,9 @@ class Client:
         prices = []
         pricesSize = self.contract.functions.pricesCounter().call()
         XSize = self.contract.functions.XCounter().call()
+        if(XSize == 0 or pricesSize == 0):
+            print("No submitted solution yet")
+            return
         for i in range(0, XSize):
             X.append(self.contract.functions.X(i).call())
         for i in range(0, pricesSize):
