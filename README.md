@@ -54,7 +54,7 @@ To bid for items:
 NOTE: in the `scripts` folder, you'll find a `populate.sh` script automatically adding mutiple bids and items to the contract without user interaction.
 
 To solve an auction:
-`./client solve --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b --addr <contract_address>`
+`./client.py solve --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b --addr <contract_address>`
 
 The client allows to submit an incorrect solution using:
 `./client.py solve-fake --account 0x5AB16852FB28d800994cD3a7F69359AD062f497b --addr <contract_address>`
