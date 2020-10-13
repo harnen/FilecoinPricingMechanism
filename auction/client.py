@@ -54,14 +54,53 @@ class Client:
         return tx_receipt.contractAddress
 
     def solve_fake(self):
-        X = [0]
-        prices = [0]
-        score = 100000
-        print("Computing a fake auction solution")
-        transaction = self.contract.functions.submitSolution(X, prices, score)
+        bidsCounter = self.contract.functions.bidsCounter().call()
+        bids = []
+        for i in range(1, bidsCounter + 1):
+            bids.append(self.contract.functions.bids(i).call())
+        print("Fetched bids:", bids)
+
+        itemsCounter = self.contract.functions.itemCounter().call()
+        items = []
+        for i in range(1, itemsCounter + 1):
+            items.append(self.contract.functions.items(i).call())
+        print("Fetched items:", items)
+
+        bidderIDs = list(range(0, bidsCounter))
+        itemIDs = list(range(0, itemsCounter))
+
+        #valuation bidde -> item
+        valuations = {}
+        for bidder in bidderIDs:
+            for item in itemIDs:
+                ok = True
+                #print("bidder", bidder, "item", item)
+                for i in range(0, len(bids[bidder]) - 1):
+                    #print("comparing features", bids[bidder][i], items[item][i])
+                    if(bids[bidder][i] > items[item][i]):
+                        valuations[bidder, item] = 0
+                        ok = False
+                        break
+                if(ok):
+                    valuations[bidder, item] = bids[bidder][2]
+        
+        list_min_prices = [v[2] for k,v in enumerate(items)]
+        min_prices = {}
+        for item in itemIDs:
+            min_prices[item] = list_min_prices[item]
+       
+
+        auction = Auction(itemIDs, min_prices, bidderIDs, valuations)
+        auction.solve()
+        X, prices, score = auction.return_solution()
+
+        X = [255 if x==None else x for x in X]
+        
+        transaction = self.contract.functions.submitSolution(X, prices, score+100)
         tx_hash = transaction.transact()
         self.w3.eth.waitForTransactionReceipt(tx_hash)
-        print("Solution submitted")
+
+        print("Fake Solution submitted (score + 100)")
 
         
     def solve(self):
@@ -94,6 +133,8 @@ class Client:
                         break
                 if(ok):
                     valuations[bidder, item] = bids[bidder][2]
+        
+        print("Derived valuations:", valuations)
         list_min_prices = [v[2] for k,v in enumerate(items)]
         min_prices = {}
         for item in itemIDs:
@@ -106,8 +147,13 @@ class Client:
         auction.solve()
         X, prices, score = auction.return_solution()
 
+        X = [255 if x==None else x for x in X]
         print("X", X)
         print("prices", prices)
+        print("score", score)
+        auction.print_assignments()
+        
+        #return
 
         transaction = self.contract.functions.submitSolution(X, prices, score)
         tx_hash = transaction.transact()
@@ -121,6 +167,7 @@ class Client:
         prices = []
         pricesSize = self.contract.functions.pricesCounter().call()
         XSize = self.contract.functions.XCounter().call()
+        score = self.contract.functions.score().call()
         if(XSize == 0 or pricesSize == 0):
             print("No submitted solution yet")
             return
@@ -128,7 +175,8 @@ class Client:
             X.append(self.contract.functions.X(i).call())
         for i in range(0, pricesSize):
             prices.append(self.contract.functions.prices(i).call())
- 
+        X = [None if x==255 else x for x in X]
+
         bidsCounter = self.contract.functions.bidsCounter().call()
         bids = []
         for i in range(1, bidsCounter + 1):
@@ -149,23 +197,31 @@ class Client:
         for bidder in bidderIDs:
             for item in itemIDs:
                 ok = True
-                #print("bidder", bidder, "item", item)
+                print("bidder", bidder, "item", item)
                 for i in range(0, len(bids[bidder]) - 1):
-                    #print("comparing features", bids[bidder][i], items[item][i])
+                    print("comparing features", bids[bidder][i], items[item][i])
                     if(bids[bidder][i] > items[item][i]):
                         valuations[bidder, item] = 0
                         ok = False
                         break
                 if(ok):
                     valuations[bidder, item] = bids[bidder][2]
+                else:
+                    valuations[bidder, item] = 0
         list_min_prices = [v[2] for k,v in enumerate(items)]
         min_prices = {}
         for item in itemIDs:
             min_prices[item] = list_min_prices[item]
        
-
+        print("itemIDs", itemIDs)
+        print("bidderIDs", itemIDs)
+        print("min_prices", min_prices)
+        print("valuations", valuations)
+        print("prices", prices)
+        print("score", score)
         auction = Auction(itemIDs, min_prices, bidderIDs, valuations)
-        auction.set_solution(X, prices)
+        auction.set_solution(X, prices, score)
+        auction.print_assignments()
         if(auction.verify() == False):
             print("Solution is incorrect")
             answer = input("Would you like to submit a proof of misbehaviour?[y/n]:")

@@ -7,19 +7,6 @@ import time
 import json
 import pandas as pd
 
-#Item related DS
-#Items      = []
-#prices       = {}
-#reser_prices = {}#reservation prices
-#itemsToBidders         = {}
-#Bidder related DS
-#Bidders    = []
-#demand_correspondence  = {}
-#biddersToItems         = {}
-#valuations = {}
-#seedInput    = 1
-#delta_price  = 1#delta price: has to be selected in a way that captures the bidders' valuation differences
-
 class Auction:
 	def __init__(self, items, reser_prices, bidders, valuations, max_price=101):
 		#print("init with", items, reser_prices, bidders, valuations)
@@ -41,6 +28,7 @@ class Auction:
 		self.valuations = valuations
 		self.seedInput = 1
 		self.delta_price = 1
+		self.score = 0
 
 
 
@@ -149,10 +137,20 @@ class Auction:
 			else:
 				print("Bidder ", bidderID, "acquired the null item")
 
-	def return_solution(self):
-		return list(self.biddersToItems.values()), list(self.prices.values()), 1
+	def getScore(self):
+		score = 0
+		for bidderID in self.Bidders:
+			itemID  = self.biddersToItems[bidderID]
+			if itemID != None:
+				score += self.valuations[bidderID, itemID] - self.prices[itemID]
+		return score 
 
-	def set_solution(self, X, prices):
+
+	def return_solution(self):
+		print("biddersToItems", self.biddersToItems)
+		return list(self.biddersToItems.values()), list(self.prices.values()), self.getScore()
+
+	def set_solution(self, X, prices, score):
 		self.biddersToItems = {}
 		for i in range(0, len(X)):
 			self.biddersToItems[i] = X[i]
@@ -160,13 +158,18 @@ class Auction:
 		self.prices = {}
 		for i in range(0, len(prices)):
 			self.prices[i] = prices[i]
+		self.score = score
 
 	def verify(self):
 		net_sum = 0
 		price_sum = 0
 		assigned_items = 0
-		if(len(self.biddersToItems) <= 1 or len(self.prices) <= 1 ):
+		
+
+		if(self.score > 0 and self.getScore() != self.score):
+			print("Incorrect score", self.score, "while the correct one is", self.getScore())
 			return False
+
 		for bidderID in self.Bidders:
 			my_itemID  = self.biddersToItems[bidderID]
 			net_valuation = 0
