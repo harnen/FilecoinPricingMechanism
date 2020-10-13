@@ -148,9 +148,9 @@ class Client:
         X, prices, score = auction.return_solution()
 
         X = [255 if x==None else x for x in X]
-        print("X", X)
-        print("prices", prices)
-        print("score", score)
+        #print("X", X)
+        #print("prices", prices)
+        #print("score", score)
         auction.print_assignments()
         
         #return
@@ -168,7 +168,8 @@ class Client:
         pricesSize = self.contract.functions.pricesCounter().call()
         XSize = self.contract.functions.XCounter().call()
         score = self.contract.functions.score().call()
-        if(XSize == 0 or pricesSize == 0):
+
+        if(score == 0 or XSize == 0 or pricesSize == 0):
             print("No submitted solution yet")
             return
         for i in range(0, XSize):
@@ -197,9 +198,9 @@ class Client:
         for bidder in bidderIDs:
             for item in itemIDs:
                 ok = True
-                print("bidder", bidder, "item", item)
+                #print("bidder", bidder, "item", item)
                 for i in range(0, len(bids[bidder]) - 1):
-                    print("comparing features", bids[bidder][i], items[item][i])
+                    #print("comparing features", bids[bidder][i], items[item][i])
                     if(bids[bidder][i] > items[item][i]):
                         valuations[bidder, item] = 0
                         ok = False
@@ -213,12 +214,12 @@ class Client:
         for item in itemIDs:
             min_prices[item] = list_min_prices[item]
        
-        print("itemIDs", itemIDs)
-        print("bidderIDs", itemIDs)
-        print("min_prices", min_prices)
-        print("valuations", valuations)
-        print("prices", prices)
-        print("score", score)
+        #print("itemIDs", itemIDs)
+        #print("bidderIDs", itemIDs)
+        #print("min_prices", min_prices)
+        #print("valuations", valuations)
+        #print("prices", prices)
+        #print("score", score)
         auction = Auction(itemIDs, min_prices, bidderIDs, valuations)
         auction.set_solution(X, prices, score)
         auction.print_assignments()
@@ -226,7 +227,9 @@ class Client:
             print("Solution is incorrect")
             answer = input("Would you like to submit a proof of misbehaviour?[y/n]:")
             if(answer == 'y'):
-                time.sleep(1)
+                transaction = self.contract.functions.wrongScore()
+                tx_hash = transaction.transact()
+                self.w3.eth.waitForTransactionReceipt(tx_hash)
                 print("Proof of misbehaviour submitted")
                 print("The incorrect solution will be removed and its creator penalized")
         else:

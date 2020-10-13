@@ -18,7 +18,7 @@ contract asterisk {
     //indexed by bidID
     uint[] public prices;
     uint public pricesCounter;
-    int public score;
+    int public score = 0;
     uint public highestScore = 0;
     uint depositLimit = 0;
     uint deposit = 0;
@@ -111,11 +111,11 @@ contract asterisk {
     }
 
     function wrongScore() public returns (bool){
-        if(calculateScore() != uint(score)){
-            score = 0;
-            return true;
-        }
-        return false;
+        //if(calculateScore() != uint(score)){
+        score = 0;
+        return true;
+        //}
+        //return false;
     }
 
     function wrongAssignment(uint bidID, uint alternativeItemID) public returns (bool){
