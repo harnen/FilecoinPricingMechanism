@@ -116,6 +116,10 @@ class Client:
             items.append(self.contract.functions.items(i).call())
         print("Fetched items:", items)
 
+        if(len(bids) == 0 or len(items) == 0 ):
+            print("Not enough items or bids present on the blockchain")
+            return
+
         bidderIDs = list(range(0, bidsCounter))
         itemIDs = list(range(0, itemsCounter))
 
@@ -153,7 +157,9 @@ class Client:
         #print("score", score)
         auction.print_assignments()
         
-        #return
+        if(score == 0):
+            print("No items assigned to bidders - skipping solution submission")
+            return
 
         transaction = self.contract.functions.submitSolution(X, prices, score)
         tx_hash = transaction.transact()
