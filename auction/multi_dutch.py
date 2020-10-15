@@ -142,7 +142,7 @@ class Auction:
 		for bidderID in self.Bidders:
 			itemID  = self.biddersToItems[bidderID]
 			if itemID != None:
-				score += self.valuations[bidderID, itemID] - self.prices[itemID]
+				score += self.valuations[bidderID, itemID] - self.prices[itemID] + 1
 		return score 
 
 
